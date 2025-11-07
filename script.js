@@ -1,6 +1,9 @@
+const Tasks = [];
 function addTask() {
   const input = document.getElementById('taskInput');
   const taskText = input.value.trim();
+  Tasks.push(taskText);
+  localStorage.setItem('task',JSON.stringify(Tasks));
 
   if (taskText === "") return;
 
