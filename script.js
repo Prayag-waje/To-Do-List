@@ -1,26 +1,45 @@
-const Tasks = [];
+let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+
+function save() {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+function render() {
+  const list = document.getElementById('taskList');
+  list.innerHTML = '';
+  tasks.forEach(t => {
+    const li = document.createElement('li');
+    li.textContent = t.text;
+    li.dataset.id = t.id;
+    li.addEventListener('click', () => li.classList.toggle('done'));
+
+    const btn = document.createElement('button');
+    btn.textContent = '🗑️';
+    btn.className = 'delete-btn';
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      remove(t.id);
+    });
+
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+}
+
 function addTask() {
   const input = document.getElementById('taskInput');
-  const taskText = input.value.trim();
-  Tasks.push(taskText);
-  localStorage.setItem('task',JSON.stringify(Tasks));
-
-  if (taskText === "") return;
-
-  const li = document.createElement('li');
-  li.textContent = taskText;
-
-  li.addEventListener('click', () => {
-    li.classList.toggle('done');
-  });
-
-  const deleteBtn = document.createElement('button');
-  deleteBtn.textContent = "🗑️";
-  deleteBtn.className = 'delete-btn';
-  deleteBtn.onclick = () => li.remove();
-
-  li.appendChild(deleteBtn);
-  document.getElementById('taskList').appendChild(li);
-
-  input.value = "";
+  const text = input.value.trim();
+  if (!text) return;
+  tasks.push({ id: Date.now(), text });
+  save();
+  render();
+  input.value = '';
 }
+
+function remove(id) {
+  tasks = tasks.filter(t => t.id != id);
+  save();
+  render();
+}
+
+document.addEventListener('DOMContentLoaded', render);
