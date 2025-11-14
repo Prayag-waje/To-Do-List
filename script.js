@@ -1,45 +1,42 @@
-let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+let tolist = [];
 
 function save() {
-  localStorage.setItem('tasks', JSON.stringify(tasks));
+  const alltask = JSON.parse(localStorage.getItem("allist"));
+  if (alltask) {
+    tolist.push(...alltask);
+    todoCreate();
+  }
 }
+save();
 
-function render() {
-  const list = document.getElementById('taskList');
-  list.innerHTML = '';
-  tasks.forEach(t => {
-    const li = document.createElement('li');
-    li.textContent = t.text;
-    li.dataset.id = t.id;
-    li.addEventListener('click', () => li.classList.toggle('done'));
-
-    const btn = document.createElement('button');
-    btn.textContent = '🗑️';
-    btn.className = 'delete-btn';
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      remove(t.id);
-    });
-
-    li.appendChild(btn);
-    list.appendChild(li);
-  });
+function todoCreate() {
+  localStorage.setItem("allist", JSON.stringify(tolist));
+  const todoContainer = document.getElementById("taskList");
+  if (!todoContainer) return;
+  todoContainer.innerHTML = "";
+  for (let i = 0; i < tolist.length; i++) {
+    let output = tolist[i];
+    todoContainer.innerHTML += `\n    <li class="todo">${output} <button class="btn-delete" type="button" onclick="Delete(${i})">Delete</button></li>`;
+  }
 }
+todoCreate();
 
 function addTask() {
-  const input = document.getElementById('taskInput');
-  const text = input.value.trim();
-  if (!text) return;
-  tasks.push({ id: Date.now(), text });
-  save();
-  render();
-  input.value = '';
+  const taskElement = document.getElementById("taskInput");
+  if (!taskElement) return;
+  const task = taskElement.value;
+  if (!task) {
+    alert("Please enter a task")
+    return;
+  }
+  tolist.push(task);
+  todoCreate();
+  taskElement.value = "";
 }
 
-function remove(id) {
-  tasks = tasks.filter(t => t.id != id);
-  save();
-  render();
+function Delete(index) {
+  if (index < 0 || index >= tolist.length) return;
+  tolist.splice(index, 1);
+  todoCreate();
 }
 
-document.addEventListener('DOMContentLoaded', render);
